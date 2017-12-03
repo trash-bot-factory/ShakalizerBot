@@ -12,7 +12,7 @@ bot = telebot.TeleBot(API_TOKEN)
 @bot.message_handler(commands=['shakalize', 'shakal'])
 def handle_reply(message):
     reply_to_message = message.reply_to_message
-    if reply_to_message.content_type == 'photo':
+    if reply_to_message != None and reply_to_message.content_type == 'photo':
         shakalize(bot, reply_to_message)
     else:
         bot.reply_to(message, "Что-то ты загоняешься, чувак!")
