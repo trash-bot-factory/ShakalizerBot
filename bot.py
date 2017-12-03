@@ -1,0 +1,56 @@
+import telebot
+import tempfile
+import shutil
+import os
+from PIL import Image
+
+API_TOKEN = os.environ['BOT_TOKEN'] 
+
+bot = telebot.TeleBot(API_TOKEN)
+
+
+@bot.message_handler(commands=['shakalize', 'shakal'])
+def handle_reply(message):
+    reply_to_message = message.reply_to_message
+    if reply_to_message.content_type == 'photo':
+        shakalize(bot, reply_to_message)
+    else:
+        bot.reply_to(message, "Что-то ты загоняешься, чувак!")
+
+
+@bot.message_handler(commands=['start'])
+def log_start(message):
+    print("Initialized at chat {}".format(message.chat.id))
+
+
+@bot.message_handler(content_types=['photo'])
+def handle_photo_tpye(message):
+    if message.caption == None:
+        return
+    caption = message.caption.lower()
+    if not ("шакал" in caption or "shakal" in caption):
+        return
+    shakalize(bot, message)
+
+
+def shakalize(bot, message):
+    photo = message.photo[0]
+    file_info = bot.get_file(photo.file_id)
+    downloaded_file = bot.download_file(file_info.file_path)
+
+    _, file_path = tempfile.mkstemp(suffix='.' + file_info.file_path.split('.')[-1])
+    try:
+        with open(file_path, 'wb') as f:
+            f.write(downloaded_file)
+        image = Image.open(file_path)
+        rate = int(720 / image.size[0])
+        image = image.resize(map(lambda e: e * rate, image.size))
+        image.save(file_path)
+        bot.send_photo(message.chat.id, open(file_path, 'rb'), reply_to_message_id=message.message_id)
+    finally:
+        os.remove(file_path)
+
+
+
+if __name__ == '__main__':
+    bot.polling(none_stop=True)

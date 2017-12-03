@@ -1,0 +1,12 @@
+appdirs==1.4.3
+certifi==2017.11.5
+chardet==3.0.4
+idna==2.6
+olefile==0.44
+packaging==16.8
+Pillow==4.3.0
+pyparsing==2.2.0
+pyTelegramBotAPI==3.5.1
+requests==2.18.4
+six==1.11.0
+urllib3==1.22
