@@ -7,6 +7,7 @@ from PIL import Image
 API_TOKEN = os.environ['BOT_TOKEN'] 
 
 bot = telebot.TeleBot(API_TOKEN)
+cache = {}
 
 
 @bot.message_handler(commands=['shakalize', 'shakal'])
@@ -14,8 +15,10 @@ def handle_reply(message):
     reply_to_message = message.reply_to_message
     if reply_to_message != None and reply_to_message.content_type == 'photo':
         shakalize(bot, reply_to_message)
+    elif message.chat.id in cache:
+        shakalize(bot, cache[message.chat.id])
     else:
-        bot.reply_to(message, "Что-то ты загоняешься, чувак!")
+        bot.reply_to(message, "Я не помню, чтобы в этом чатике были какие-то пикчи =(")
 
 
 @bot.message_handler(commands=['start'])
@@ -23,8 +26,13 @@ def log_start(message):
     print("Initialized at chat {}".format(message.chat.id))
 
 
+def cache_photo(message):
+    cache[message.chat.id] = message
+
+
 @bot.message_handler(content_types=['photo'])
 def handle_photo_tpye(message):
+    cache_photo(message)
     if message.caption == None:
         return
     caption = message.caption.lower()
