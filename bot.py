@@ -42,7 +42,7 @@ def handle_photo_tpye(message):
 
 
 def shakalize(bot, message):
-    photo = message.photo[0]
+    photo = message.photo[-1]
     file_info = bot.get_file(photo.file_id)
     downloaded_file = bot.download_file(file_info.file_path)
 
@@ -51,9 +51,11 @@ def shakalize(bot, message):
         with open(file_path, 'wb') as f:
             f.write(downloaded_file)
         image = Image.open(file_path)
-        rate = int(720 / image.size[0])
-        image = image.resize(map(lambda e: e * rate, image.size))
-        image.save(file_path)
+        original_size = image.size
+        rate = 1 / 3
+        image = image.resize(map(lambda e: int(e * rate), image.size))
+        image = image.resize(original_size)
+        image.save(file_path, optimize=True, quality=5)
         bot.send_photo(message.chat.id, open(file_path, 'rb'), reply_to_message_id=message.message_id)
     finally:
         os.remove(file_path)
