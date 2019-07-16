@@ -1,10 +1,11 @@
+#!/usr/bin/env python3
+
 import telebot
 import tempfile
-import shutil
 import os
 from PIL import Image
 
-API_TOKEN = os.environ['BOT_TOKEN'] 
+API_TOKEN = os.environ['BOT_TOKEN']
 
 bot = telebot.TeleBot(API_TOKEN)
 cache = {}
@@ -13,7 +14,7 @@ cache = {}
 @bot.message_handler(commands=['shakalize', 'shakal'])
 def handle_reply(message):
     reply_to_message = message.reply_to_message
-    if reply_to_message != None and reply_to_message.content_type == 'photo':
+    if reply_to_message is not None and reply_to_message.content_type == 'photo':
         shakalize(bot, reply_to_message)
     elif message.chat.id in cache:
         shakalize(bot, cache[message.chat.id])
@@ -56,10 +57,10 @@ def shakalize(bot, message):
         image = image.resize(map(lambda e: int(e * rate), image.size))
         image = image.resize(original_size)
         image.save(file_path, optimize=True, quality=5)
-        bot.send_photo(message.chat.id, open(file_path, 'rb'), reply_to_message_id=message.message_id)
+        bot.send_photo(message.chat.id, open(file_path, 'rb'),
+                       reply_to_message_id=message.message_id)
     finally:
         os.remove(file_path)
-
 
 
 if __name__ == '__main__':
